@@ -4,6 +4,18 @@ Welcome to **BLOX-TAK-CoT**. This project is a universal, Python-based integrati
 
 While initially developed to research "Ghost Satellite" phenomena during uncontrolled reentries (like ZQ-3), **BLOX-TAK-CoT** is fully configurable to track stable assets (ISS, Starlink, Tiangong) or high-value targets by simply changing the configuration ID.
 
+📺 #YouTube:
+
+CORE - https://youtu.be/lcWTPbxM3_g
+
+REPLAY - https://youtu.be/nNv6e3a4rn4
+
+🌐 Socials:
+
+Linkedin: https://www.linkedin.com/posts/lukebluelox_zq3-reentry-blox-share-7423271365610393600-aTHS
+
+𝕏: https://x.com/LukeStriderGM/status/2017505686943314412
+
 <details>
 
 <summary>🇵🇱 [Kliknij Trójkąt Po Lewej Stronie Aby Rozwinąć Opis w Języku Polskim]</summary>
@@ -13,6 +25,18 @@ While initially developed to research "Ghost Satellite" phenomena during uncontr
 Witaj w **BLOX-TAK-CoT**. Ten projekt to uniwersalny most integracyjny oparty na języku Python, zaprojektowany do śledzenia **dowolnego** obiektu orbitalnego (satelity, człony rakiet, śmieci kosmiczne, stacje kosmiczne) w czasie rzeczywistym za pośrednictwem API N2YO i wizualizacji jego telemetrii w ekosystemie ATAK (Android Team Awareness Kit) przy użyciu protokołu Cursor on Target (CoT).
 
 Choć narzędzie to zostało pierwotnie opracowane do badania zjawisk "Satelitów Duchów" podczas niekontrolowanych wejść w atmosferę (jak ZQ-3), **BLOX-TAK-CoT** jest w pełni konfigurowalne do śledzenia stabilnych zasobów (ISS, Starlink, Tiangong) lub celów o wysokim znaczeniu poprzez prostą zmianę identyfikatora w konfiguracji.
+
+📺 #YouTube:
+
+CORE - https://youtu.be/lcWTPbxM3_g
+
+REPLAY - https://youtu.be/nNv6e3a4rn4
+
+🌐 Socials:
+
+Linkedin: https://www.linkedin.com/posts/lukebluelox_deorbitacja-zq3-blox-share-7423271298686173184-G4w8
+
+𝕏: https://x.com/LukeStriderGM/status/2017505668349968509
 
 </details>
 
