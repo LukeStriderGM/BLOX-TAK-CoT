@@ -1,0 +1,25 @@
+# --- SECURITY (CRITICAL) ---
+certs/
+*.key
+*.pem
+*.p12
+*.crt
+
+# --- LOGS ---
+# Ignoruj wszystkie logi...
+*.log
+
+# ...ALE te konkretne zachowaj jako dane treningowe dla użytkownika!
+!cot.log
+
+# --- PYTHON & ENVIRONMENT ---
+.venv/
+venv/
+ENV/
+__pycache__/
+*.pyc
+
+# --- IDE / SYSTEM ---
+.idea/
+.vscode/
+.DS_Store
