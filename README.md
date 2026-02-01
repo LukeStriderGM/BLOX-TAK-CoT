@@ -1,4 +1,4 @@
-# 🇺🇸 BLOX-TAK-CoT
+# 🇺🇸 / 🇵🇱 BLOX-TAK-CoT
 
 Welcome to **BLOX-TAK-CoT**. This project is a universal, Python-based integration bridge designed to track **any** orbital object (Satellites, Rocket Bodies, Debris, Space Stations) in real-time via the N2YO API and visualize its telemetry within the ATAK (Android Team Awareness Kit) ecosystem using the Cursor on Target (CoT) protocol.
 
@@ -42,7 +42,7 @@ Linkedin: https://www.linkedin.com/posts/lukebluelox_deorbitacja-zq3-blox-share-
 
 ---
 
-## 🇺🇸 Core Features
+## 🇺🇸 Core Features / 🇵🇱 Główne Funkcjonalności
 
 * **Universal Architecture**: Compatible with the entire NORAD database. Whether it's a falling rocket body or the ISS, if it has an ID, this tool can track it.
 * **Real-Time Telemetry Bridge**: Fetches precise orbital data (Latitude, Longitude, Altitude) every second and injects it into the TAK network.
@@ -70,7 +70,7 @@ Linkedin: https://www.linkedin.com/posts/lukebluelox_deorbitacja-zq3-blox-share-
 
 ---
 
-## 🇺🇸 Prerequisites
+## 🇺🇸 Prerequisites / 🇵🇱 Wymagania Wstępne
 
 To deploy **BLOX-TAK-CoT**, you will need the following environment (optimized for Orange Pi 5 / Ubuntu / Debian):
 
