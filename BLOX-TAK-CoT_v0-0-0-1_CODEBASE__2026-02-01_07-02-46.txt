@@ -1,0 +1,1225 @@
+PROJECT: BLOX-TAK-CoT
+VERSION: v0.0.0.1
+DATE:    2026-02-01_07-02-46
+============================================================
+
+NOTE: Full codebase dump excluding secrets (certs/) and environments.
+UWAGA: Pełny zrzut kodu źródłowego z pominięciem sekretów (certs/) i środowisk.
+============================================================
+
+FILE MANIFEST / LISTA PLIKÓW:
+------------------------------
+.gitignore
+CODE_OF_CONDUCT.md
+LICENSE.txt
+N2YO-API-Query_PyCoT-TAK-Server.py
+README.md
+cot.log
+cot_replay.log
+replay_cot.py
+requirements.txt
+
+============================================================
+
+
+--- START FILE: .gitignore ---
+# --- SECURITY (CRITICAL) ---
+certs/
+*.key
+*.pem
+*.p12
+*.crt
+
+# --- LOGS ---
+# Ignoruj wszystkie logi...
+*.log
+
+# ...ALE te konkretne zachowaj jako dane treningowe dla użytkownika!
+!cot.log
+
+# --- PYTHON & ENVIRONMENT ---
+.venv/
+venv/
+ENV/
+__pycache__/
+*.pyc
+
+# --- IDE / SYSTEM ---
+.idea/
+.vscode/
+.DS_Store
+--- END FILE: .gitignore ---
+
+--- START FILE: CODE_OF_CONDUCT.md ---
+## Contributor Covenant Code of Conduct
+
+### Our Pledge
+
+We as members, contributors, and leaders pledge to make participation in our
+community a harassment-free experience for everyone, regardless of age, body
+size, visible or invisible disability, ethnicity, sex characteristics, gender
+identity and expression, level of experience, education, socio-economic status,
+nationality, personal appearance, race, religion, or sexual identity
+and orientation.
+
+We pledge to act and interact in ways that contribute to an open, welcoming,
+diverse, inclusive, and healthy community.
+
+### Our Standards
+
+Examples of behavior that contributes to a positive environment for our
+community include:
+
+* Demonstrating empathy and kindness toward other people
+* Being respectful of differing opinions, viewpoints, and experiences
+* Giving and gracefully accepting constructive feedback
+* Accepting responsibility and apologizing to those affected by our mistakes,
+    and learning from the experience
+* Focusing on what is best not just for us as individuals, but for the
+    overall community
+
+Examples of unacceptable behavior include:
+
+* The use of sexualized language or imagery, and sexual attention or
+    advances of any kind
+* Trolling, insulting or derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or email
+    address, without their explicit permission
+* Other conduct which could reasonably be considered inappropriate in a
+    professional setting
+
+### Enforcement Responsibilities
+
+Community leaders are responsible for clarifying and enforcing our standards and
+will take appropriate and fair corrective action in response to any behavior
+that they deem inappropriate, threatening, offensive, or harmful.
+
+Community leaders have the right and responsibility to remove, edit, or reject
+comments, commits, code, wiki edits, issues, and other contributions that are
+not aligned to this Code of Conduct, and will communicate reasons for moderation
+decisions when appropriate.
+
+### Scope
+
+This Code of Conduct applies within all community spaces, and also applies when
+an individual is officially representing the community in public spaces.
+Examples of representing our community include using an official e-mail address,
+posting via an official social media account, or acting as an appointed
+representative at an online or offline event.
+
+### Enforcement
+
+Instances of abusive, harassing, or otherwise unacceptable behavior may be
+reported to the community leaders responsible for enforcement at
+**luke.strider.gm@gmail.com**.
+All complaints will be reviewed and investigated promptly and fairly.
+
+All community leaders are obligated to respect the privacy and security of the
+reporter of any incident.
+
+### Enforcement Guidelines
+
+Community leaders will follow these Community Impact Guidelines in determining
+the consequences for any action they deem in violation of this Code of Conduct:
+
+### 1. Correction
+
+**Community Impact**: Use of inappropriate language or other behavior deemed
+unprofessional or unwelcome in the community.
+
+**Consequence**: A private, written warning from community leaders, providing
+clarity around the nature of the violation and an explanation of why the
+behavior was inappropriate. A public apology may be requested.
+
+### 2. Warning
+
+**Community Impact**: A violation through a single incident or series
+of actions.
+
+**Consequence**: A warning with consequences for continued behavior. No
+interaction with the people involved, including unsolicited interaction with
+those enforcing the Code of Conduct, for a specified period of time. This
+includes avoiding interaction in community spaces as well as external channels
+like social media. Violating these terms may lead to a temporary or
+permanent ban.
+
+### 3. Temporary Ban
+
+**Community Impact**: A serious violation of community standards, including
+sustained inappropriate behavior.
+
+**Consequence**: A temporary ban from any sort of interaction or public
+communication with the community for a specified period of time. No public or
+private interaction with the people involved, including unsolicited interaction
+with those enforcing the Code of Conduct, is allowed during this period.
+Violating these terms may lead to a permanent ban.
+
+### 4. Permanent Ban
+
+**Community Impact**: Demonstrating a pattern of violation of community
+standards, including sustained inappropriate behavior, harassment of an
+individual, or aggression toward or disparagement of classes of individuals.
+
+**Consequence**: A permanent ban from any sort of public interaction within
+the community.
+
+---
+Attribution
+
+This Code of Conduct is adapted from the [Contributor Covenant][homepage],
+version 2.1, available at
+[https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][v2.1].
+
+[homepage]: https://www.contributor-covenant.org
+[v2.1]: https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
+--- END FILE: CODE_OF_CONDUCT.md ---
+
+--- START FILE: LICENSE.txt ---
+MIT License
+
+Copyright (c) 2026 Łukasz "LukeStriderGM" Andruszkiewicz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+--- END FILE: LICENSE.txt ---
+
+--- START FILE: N2YO-API-Query_PyCoT-TAK-Server.py ---
+import CoT  # https://pypi.org/project/PyCoT
+import requests
+import datetime
+import socket
+import ssl
+import time
+import os
+import logging
+import warnings
+
+# --- CONFIGURATION OF WARNINGS ---
+# --- KONFIGURACJA OSTRZEŻEŃ ---
+
+# Disable annoying library warnings about date format for cleaner logs
+# Wyłącz irytujące ostrzeżenia biblioteki o formacie daty dla czystszych logów
+warnings.filterwarnings("ignore")
+
+# --- LOGGING CONFIGURATION ---
+# --- KONFIGURACJA LOGOWANIA ---
+
+# Configure file logging
+# Konfiguracja logowania do pliku
+logging.basicConfig(
+    filename="/home/lukestridergm/BLOX-TAK-CoT/cot.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+# --- USER SETTINGS ---
+# --- USTAWIENIA UŻYTKOWNIKA ---
+
+# API Key and Target Satellite ID (ZQ-3 R/B)
+# Klucz API i ID docelowego satelity (ZQ-3 R/B)
+N2YO_API_KEY = "*****"
+SAT_ID = 66877
+
+# Observer coordinates (Your Location)
+# Koordynaty obserwatora (Twoja Lokalizacja)
+OBSERVER_LAT = 50.81557
+OBSERVER_LNG = 15.675225
+OBSERVER_ALT = 445
+
+# Prediction settings
+# Ustawienia predykcji
+SECONDS = 1
+REFRESH_INTERVAL = 10
+
+# --- TAK SERVER SETTINGS ---
+# --- USTAWIENIA SERWERA TAK ---
+
+# IP address and port
+# Adres IP i port
+TAK_IP = "192.168.1.2"
+TAK_PORT = 8089
+
+# --- SSL CERTIFICATES ---
+# --- CERTYFIKATY SSL ---
+
+# Define paths to certificates
+# Zdefiniuj ścieżki do certyfikatów
+CERT_DIR = "/home/lukestridergm/BLOX-TAK-CoT/certs"
+CLIENT_CERT = os.path.join(CERT_DIR, "BLOX-TAK-SF-ADMIN.pem")
+CLIENT_KEY = os.path.join(CERT_DIR, "BLOX-TAK-SF-ADMIN.key")
+CA_CERT = os.path.join(CERT_DIR, "BLOX-TAK-SF-ADMIN-trusted.pem")
+
+# --- SSL CONTEXT PREPARATION ---
+# --- PRZYGOTOWANIE KONTEKSTU SSL ---
+
+# Load client and CA certificates for secure connection
+# Załaduj certyfikaty klienta i CA dla bezpiecznego połączenia
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+ssl_context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
+ssl_context.load_verify_locations(cafile=CA_CERT)
+ssl_context.verify_mode = ssl.CERT_REQUIRED
+
+# Print startup information
+# Wypisz informacje startowe
+print(f"🚀 STARTING TRACKING: {SAT_ID}")
+print(f"🚀 ROZPOCZYNAM ŚLEDZENIE: {SAT_ID}")
+
+print(f"🎯 TARGET: {TAK_IP}:{TAK_PORT} (SSL)")
+print(f"🎯 CEL: {TAK_IP}:{TAK_PORT} (SSL)")
+
+print(f"⚠️ MODE: HOSTILE (IMMINENT IMPACT)")
+print(f"⚠️ TRYB: WROGI (NADCHODZĄCE UDERZENIE)")
+print("-" * 40)
+
+# --- MAIN LOOP ---
+# --- GŁÓWNA PĘTLA ---
+
+while True:
+    try:
+        # 1. Fetch data from N2YO
+        # 1. Pobierz dane z N2YO
+
+        # Measure query start time
+        # Zmierz czas rozpoczęcia zapytania
+        start_time = time.time()
+        url = f"https://api.n2yo.com/rest/v1/satellite/positions/{SAT_ID}/{OBSERVER_LAT}/{OBSERVER_LNG}/{OBSERVER_ALT}/{SECONDS}/&apiKey={N2YO_API_KEY}"
+
+        try:
+            # Send GET request with timeout
+            # Wyślij żądanie GET z timeoutem
+            response = requests.get(url, timeout=10)
+        except requests.RequestException as e:
+            # Handle connection error
+            # Obsłuż błąd połączenia
+            print(f"❌ N2YO Connection Error: {e}")
+            print(f"❌ Błąd połączenia z N2YO: {e}")
+            time.sleep(30)
+            continue
+
+        # Check API response status
+        # Sprawdź status odpowiedzi API
+        if response.status_code != 200:
+            print(f"❌ N2YO API Error: {response.status_code}")
+            print(f"❌ Błąd API N2YO: {response.status_code}")
+            time.sleep(60)
+            continue
+
+        # Parse JSON data
+        # Parsuj dane JSON
+        data = response.json()
+        positions = data.get("positions", [])
+
+        # Check if positions are available
+        # Sprawdź, czy pozycje są dostępne
+        if not positions:
+            print(f"⚠️ No position data (Satellite below horizon or error).")
+            print(f"⚠️ Brak danych o pozycji (Satelita pod horyzontem lub błąd).")
+            time.sleep(30)
+            continue
+
+        # Get satellite name
+        # Pobierz nazwę satelity
+        sat_name = data["info"]["satname"]
+
+        # 2. Connect to TAK Server
+        # 2. Połącz z serwerem TAK
+
+        # Initialize socket with SSL wrapper
+        # Inicjalizuj gniazdo z opakowaniem SSL
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        wrapped_sock = ssl_context.wrap_socket(sock, server_hostname=TAK_IP)
+        wrapped_sock.settimeout(5.0)
+
+        try:
+            # Establish connection
+            # Nawiąż połączenie
+            wrapped_sock.connect((TAK_IP, TAK_PORT))
+        except Exception as e:
+            # Handle TAK connection failure
+            # Obsłuż błąd połączenia z TAK
+            print(f"❌ Cannot connect to TAK Server: {e}")
+            print(f"❌ Nie można połączyć z TAK Server: {e}")
+            time.sleep(5)
+            continue
+
+        # 3. Generate and Send CoT
+        # 3. Generuj i wyślij CoT
+
+        for sat_data in positions:
+            # Extract coordinates
+            # Wyciągnij koordynaty
+            sat_lat = sat_data["satlatitude"]
+            sat_lon = sat_data["satlongitude"]
+
+            # Convert altitude from km to meters (Critical for ATAK)
+            # Konwertuj wysokość z km na metry (Kluczowe dla ATAK)
+            sat_alt_m = sat_data["sataltitude"] * 1000
+
+            # Set timestamps (UTC)
+            # Ustaw znaczniki czasu (UTC)
+            now = datetime.datetime.now(datetime.timezone.utc)
+            stale = now + datetime.timedelta(minutes=2)
+
+            # Build CoT Event object
+            # Zbuduj obiekt zdarzenia CoT
+
+            # CoT types: https://github.com/wcrum/py-cot/blob/main/CoT/types.py
+            cot_event = CoT.Event(
+                version="2.0",
+                type="a-h-P-S",  # Hostile Space Satellite
+                uid=f"SAT-{SAT_ID}",
+                time=now,
+                start=now,
+                stale=stale,
+                how="m-g",
+                point=CoT.Point(
+                    lat=sat_lat,
+                    lon=sat_lon,
+                    hae=sat_alt_m,
+                    ce=1000,
+                    le=1000
+                ),
+                detail={
+                    "contact": {"callsign": f"{sat_name} (DECAY)"},
+                    "remarks": f"ALT: {sat_alt_m / 1000:.1f}km. UNCONTROLLED REENTRY via N2YO.",
+                    "track": {"speed": 7800, "course": 0},
+                    "status": {"readiness": "true"}
+                }
+            )
+
+            # Convert to XML and send
+            # Konwertuj na XML i wyślij
+            xml_data = cot_event.xml()
+            wrapped_sock.sendall(bytes(xml_data, encoding="utf-8"))
+
+            # Log to console with FIXED ALIGNMENT
+            # Loguj do konsoli ze STAŁYM WYRÓWNANIEM
+            # (>8.0f means: align right, 8 chars total width, 0 decimals)
+            # (>7.2f means: align right, 7 chars total width, 2 decimals)
+            print(
+                f"📡 SENT: {now.strftime('%H:%M:%S')} | ALT: {sat_alt_m:>8.0f} m | LAT: {sat_lat:>7.2f} | LON: {sat_lon:>8.2f} | 🔴 HOSTILE")
+            print(
+                f"📡 WYSŁ: {now.strftime('%H:%M:%S')} | WYS: {sat_alt_m:>8.0f} m | SZER:{sat_lat:>7.2f} | DŁU: {sat_lon:>8.2f} | 🔴 WROGI")
+
+            # Log to file (CORRECTED LINE - THIS IS THE FIX)
+            # Loguj do pliku (POPRAWIONA LINIA - TO JEST POPRAWKA)
+            logging.info(f"CoT for {sat_name}: lat={sat_lat}, lon={sat_lon}, alt={sat_alt_m}")
+
+            # Clear buffer (Receive confirmation)
+            # Wyczyść bufor (Odbierz potwierdzenie)
+            try:
+                _ = wrapped_sock.recv(1024)
+            except socket.timeout:
+                pass
+
+        # Close connection and wait
+        # Zamknij połączenie i czekaj
+        wrapped_sock.close()
+        time.sleep(REFRESH_INTERVAL)
+
+    except KeyboardInterrupt:
+        # Handle manual stop
+        # Obsłuż ręczne zatrzymanie
+        print(f"\n🔴 Stopped manually.")
+        print(f"\n🔴 Zatrzymano ręcznie.")
+        break
+    except Exception as e:
+        # Handle critical loop error
+        # Obsłuż krytyczny błąd pętli
+        print(f"\n❌ Critical Loop Error: {e}")
+        print(f"\n❌ Błąd krytyczny pętli: {e}")
+        logging.error(f"Critical Loop Error: {e}")
+        time.sleep(10)
+--- END FILE: N2YO-API-Query_PyCoT-TAK-Server.py ---
+
+--- START FILE: README.md ---
+# 🇺🇸 BLOX-TAK-CoT
+
+Welcome to **BLOX-TAK-CoT**. This project is a universal, Python-based integration bridge designed to track **any** orbital object (Satellites, Rocket Bodies, Debris, Space Stations) in real-time via the N2YO API and visualize its telemetry within the ATAK (Android Team Awareness Kit) ecosystem using the Cursor on Target (CoT) protocol.
+
+While initially developed to research "Ghost Satellite" phenomena during uncontrolled reentries (like ZQ-3), **BLOX-TAK-CoT** is fully configurable to track stable assets (ISS, Starlink, Tiangong) or high-value targets by simply changing the configuration ID.
+
+📺 #YouTube:
+
+CORE - https://youtu.be/lcWTPbxM3_g
+
+REPLAY - https://youtu.be/nNv6e3a4rn4
+
+🌐 Socials:
+
+Linkedin: https://www.linkedin.com/posts/lukebluelox_zq3-reentry-blox-share-7423271365610393600-aTHS
+
+𝕏: https://x.com/LukeStriderGM/status/2017505686943314412
+
+<details>
+
+<summary>🇵🇱 [Kliknij Trójkąt Po Lewej Stronie Aby Rozwinąć Opis w Języku Polskim]</summary>
+
+# 🇵🇱 BLOX-TAK-CoT
+
+Witaj w **BLOX-TAK-CoT**. Ten projekt to uniwersalny most integracyjny oparty na języku Python, zaprojektowany do śledzenia **dowolnego** obiektu orbitalnego (satelity, człony rakiet, śmieci kosmiczne, stacje kosmiczne) w czasie rzeczywistym za pośrednictwem API N2YO i wizualizacji jego telemetrii w ekosystemie ATAK (Android Team Awareness Kit) przy użyciu protokołu Cursor on Target (CoT).
+
+Choć narzędzie to zostało pierwotnie opracowane do badania zjawisk "Satelitów Duchów" podczas niekontrolowanych wejść w atmosferę (jak ZQ-3), **BLOX-TAK-CoT** jest w pełni konfigurowalne do śledzenia stabilnych zasobów (ISS, Starlink, Tiangong) lub celów o wysokim znaczeniu poprzez prostą zmianę identyfikatora w konfiguracji.
+
+📺 #YouTube:
+
+CORE - https://youtu.be/lcWTPbxM3_g
+
+REPLAY - https://youtu.be/nNv6e3a4rn4
+
+🌐 Socials:
+
+Linkedin: https://www.linkedin.com/posts/lukebluelox_deorbitacja-zq3-blox-share-7423271298686173184-G4w8
+
+𝕏: https://x.com/LukeStriderGM/status/2017505668349968509
+
+</details>
+
+---
+
+## 🇺🇸 Core Features
+
+* **Universal Architecture**: Compatible with the entire NORAD database. Whether it's a falling rocket body or the ISS, if it has an ID, this tool can track it.
+* **Real-Time Telemetry Bridge**: Fetches precise orbital data (Latitude, Longitude, Altitude) every second and injects it into the TAK network.
+* **Native CoT Transformation**: Instantly converts API data into XML-based Cursor on Target (CoT) events compatible with TAK Servers (CivTAK/FreeTAKServer) and ATAK Civ/Mil clients.
+* **Dynamic Hostility Tagging**: Configurable tagging system to flag objects as "Hostile" (Imminent Threat/Debris) or "Friendly/Neutral" (Active Assets).
+* **Mission Replay Module**: Includes a dedicated `replay_cot.py` engine to re-broadcast captured log data for post-mission analysis, training, and simulation.
+* **Secure SSL/TLS Transmission**: Supports encrypted communication channels for professional deployments.
+* **Bilingual Logs**: Console outputs and system logs are formatted in a clean, vertical bilingual style (English/Polish) for international collaboration.
+
+<details>
+
+<summary>🇵🇱</summary>
+
+## 🇵🇱 Główne Funkcjonalności
+
+* **Uniwersalna Architektura**: Kompatybilność z całą bazą danych NORAD. Niezależnie od tego, czy jest to spadający człon rakiety, czy ISS – jeśli obiekt ma ID, to narzędzie może go śledzić.
+* **Most Telemetryczny w Czasie Rzeczywistym**: Pobiera precyzyjne dane orbitalne (Szerokość, Długość, Wysokość) co sekundę i wstrzykuje je do sieci TAK.
+* **Natywna Transformacja CoT**: Natychmiastowo konwertuje dane API na zdarzenia Cursor on Target (CoT) oparte na XML, kompatybilne z serwerami TAK (CivTAK/FreeTAKServer) i klientami ATAK Civ/Mil.
+* **Dynamiczne Oznaczanie Wrogości**: Konfigurowalny system tagowania do oznaczania obiektów jako "Wrogie" (Bezpośrednie Zagrożenie/Śmieci) lub "Przyjazne/Neutralne" (Aktywne Zasoby).
+* **Moduł Odtwarzania Misji**: Zawiera dedykowany silnik `replay_cot.py` do ponownego nadawania przechwyconych danych logów w celu analizy po misji, szkoleń i symulacji.
+* **Bezpieczna Transmisja SSL/TLS**: Obsługuje szyfrowane kanały komunikacji dla profesjonalnych wdrożeń.
+* **Dwujęzyczne Logi**: Wyjścia konsoli i logi systemowe są sformatowane w czystym, pionowym stylu dwujęzycznym (Angielski/Polski) dla współpracy międzynarodowej.
+
+</details>
+
+---
+
+## 🇺🇸 Prerequisites
+
+To deploy **BLOX-TAK-CoT**, you will need the following environment (optimized for Orange Pi 5 / Ubuntu / Debian):
+
+1.  **Hardware**: Orange Pi 5 (or any Linux-based edge device/server).
+2.  **OS**: Ubuntu 22.04 LTS or Debian Bookworm.
+3.  **Python 3.10+**: With `venv` support.
+4.  **Data Source**: A valid API key from [n2yo.com](https://www.n2yo.com/api/).
+5.  **Target System**: A running TAK Server instance reachable via IP.
+6.  **Security**: Valid client certificates (`.pem`, `.key`, `trusted-root.pem`) for the TAK connection.
+
+<details>
+
+<summary>🇵🇱</summary>
+
+## 🇵🇱 Wymagania Wstępne
+
+Aby wdrożyć **BLOX-TAK-CoT**, będziesz potrzebować następującego środowiska (zoptymalizowanego dla Orange Pi 5 / Ubuntu / Debian):
+
+1.  **Sprzęt**: Orange Pi 5 (lub dowolne urządzenie brzegowe/serwer oparty na Linuxie).
+2.  **System Operacyjny**: Ubuntu 22.04 LTS lub Debian Bookworm.
+3.  **Python 3.10+**: Z obsługą `venv`.
+4.  **Źródło Danych**: Ważny klucz API ze strony [n2yo.com](https://www.n2yo.com/api/).
+5.  **System Docelowy**: Działająca instancja serwera TAK dostępna przez IP.
+6.  **Bezpieczeństwo**: Ważne certyfikaty klienta (`.pem`, `.key`, `trusted-root.pem`) do połączenia TAK.
+
+</details>
+
+---
+
+## 🇺🇸 Installation Guide / 🇵🇱 Instrukcja Instalacji
+
+Follow these steps to set up the **BLOX-TAK-CoT** environment.
+
+### 🇺🇸 Step 1: Clone & Configure Environment
+
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/LukeStriderGM/BLOX-TAK-CoT
+    cd BLOX-TAK-CoT
+    ```
+
+2.  **Create Virtual Environment**:
+    It is crucial to use a virtual environment to manage dependencies properly without affecting the system root.
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+
+3.  **Install Requirements**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    https://pypi.org/project/PyCoT
+
+<details>
+
+<summary>🇵🇱</summary>
+
+### 🇵🇱 Krok 1: Klonowanie i Konfiguracja Środowiska
+
+1.  **Sklonuj Repozytorium**:
+    ```bash
+    git clone https://github.com/LukeStriderGM/BLOX-TAK-CoT
+    cd BLOX-TAK-CoT
+    ```
+
+2.  **Utwórz Wirtualne Środowisko**:
+    Użycie wirtualnego środowiska jest kluczowe dla poprawnego zarządzania zależnościami bez wpływu na system główny (root).
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+
+3.  **Zainstaluj Wymagania**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    https://pypi.org/project/PyCoT
+
+</details>
+
+---
+
+## 🇺🇸 Configuration / 🇵🇱 Konfiguracja
+
+The system is designed to be easily reconfigurable for different missions. Edit the top section of `N2YO-API-Query_PyCoT-TAK-Server.py`.
+
+### 🇺🇸 Target Selection
+Modify the `SAT_ID` variable to track different objects.
+
+```python
+# --- USER SETTINGS ---
+N2YO_API_KEY = "YOUR-API-KEY"
+
+# Target Definition (NORAD ID)
+SAT_ID = 66877      # Target: ZQ-3 R/B (Debris/Reentry)
+# SAT_ID = 25544    # Target: ISS (International Space Station)
+# SAT_ID = 48274    # Target: CSS (Tiangong Space Station)
+```
+
+### 🇺🇸 Tactical Identity (Hostility)
+
+Adjust the CoT type to reflect the tactical nature of the object.
+
+https://github.com/wcrum/py-cot/blob/main/CoT/types.py
+
+```python
+# For Threats / Debris / Hostiles:
+type="a-h-P-S"  # Atom-Hostile-Space-Satellite (Red Icon)
+
+# For Friendly / Neutral Assets:
+type="a-n-P-S"  # Atom-Neutral-Space-Satellite (Green/Blue Icon)
+```
+
+<details>
+
+<summary>🇵🇱</summary>
+
+### 🇵🇱 Wybór Celu
+
+Zmodyfikuj zmienną `SAT_ID`, aby śledzić różne obiekty.
+
+```python
+# --- USTAWIENIA UŻYTKOWNIKA ---
+N2YO_API_KEY = "TWÓJ-KLUCZ-API"
+
+# Definicja Celu (NORAD ID)
+SAT_ID = 66877      # Cel: ZQ-3 R/B (Szczątki/Deorbitacja)
+# SAT_ID = 25544    # Cel: ISS (Międzynarodowa Stacja Kosmiczna)
+# SAT_ID = 48274    # Cel: CSS (Stacja Kosmiczna Tiangong)
+```
+
+### 🇵🇱 Tożsamość Taktyczna (Wrogość)
+
+Dostosuj `type` CoT, aby odzwierciedlić taktyczną naturę obiektu.
+
+https://github.com/wcrum/py-cot/blob/main/CoT/types.py
+
+```python
+# Dla Zagrożeń / Szczątków / Wrogów:
+type="a-h-P-S"  # Atom-Hostile-Space-Satellite (Czerwona Ikona)
+
+# Dla Zasobów Przyjaznych / Neutralnych:
+type="a-n-P-S"  # Atom-Neutral-Space-Satellite (Zielona/Niebieska Ikona)
+```
+
+</details>
+
+---
+
+## 🇺🇸 Usage / 🇵🇱 Użycie
+
+### 🇺🇸 Mode 1: Real-Time Tracker
+
+Starts the live bridge between N2YO and the TAK Server. Note: Use `sudo` combined with the `venv` path to ensure access to SSL certs and system sockets.
+
+```bash
+sudo ./.venv/bin/python3 N2YO-API-Query_PyCoT-TAK-Server.py
+```
+
+*   **Output**: Displays live formatted ALT/LAT/LON telemetry.
+*   **Logging**: Automatically saves session data to `cot.log`.
+
+### 🇺🇸 Mode 2: Mission Replay
+
+Re-broadcasts captured telemetry to simulate the event or analyze data post-mission.
+
+```bash
+sudo ./.venv/bin/python3 replay_cot.py
+```
+
+*   The script prompts for Start/End Time (Format: `YYYY-MM-DD HH:MM:SS`).
+*   Reads from `cot.log` and injects packets into the TAK network as if they were live.
+
+<details>
+
+<summary>🇵🇱</summary>
+
+### 🇵🇱 Tryb 1: Tracker Czasu Rzeczywistego
+
+Uruchamia żywy most między N2YO a serwerem TAK. Uwaga: Użyj `sudo` w połączeniu ze ścieżką `venv`, aby zapewnić dostęp do certyfikatów SSL i gniazd systemowych.
+
+```bash
+sudo ./.venv/bin/python3 N2YO-API-Query_PyCoT-TAK-Server.py
+```
+
+*   **Wyjście**: Wyświetla sformatowaną telemetrię WYS/SZER/DŁU na żywo.
+*   **Logowanie**: Automatycznie zapisuje dane sesji do `cot.log`.
+
+### 🇵🇱 Tryb 2: Odtwarzanie Misji (Replay)
+
+Ponownie nadaje przechwyconą telemetrię w celu symulacji zdarzenia lub analizy danych po misji.
+
+```bash
+sudo ./.venv/bin/python3 replay_cot.py
+```
+
+*   Skrypt prosi o Czas Startu/Końca (Format: `RRRR-MM-DD GG:MM:SS`).
+*   Odczytuje dane z `cot.log` i wstrzykuje pakiety do sieci TAK tak, jakby były na żywo.
+
+</details>
+
+---
+
+## 🇺🇸 License / Licencja 🇵🇱
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+<details>
+
+<summary>🇵🇱</summary>
+
+## Licencja
+
+Ten projekt jest objęty licencją MIT. Zobacz plik LICENSE, aby uzyskać szczegółowe informacje.
+
+Tłumaczenie [PL]:
+
+Licencja MIT
+
+Prawa autorskie (c) 2025 Łukasz "LukeStriderGM" Andruszkiewicz
+
+Niniejszym udziela się bezpłatnej zgody każdej osobie wchodzącej w posiadanie kopii tego oprogramowania i powiązanych z nim plików dokumentacji (dalej „Oprogramowanie”), na obchodzenie się z Oprogramowaniem bez ograniczeń, włączając w to bez ograniczeń prawa do używania, kopiowania, modyfikowania, łączenia, publikowania, dystrybucji, sublicencjonowania i/lub sprzedaży kopii Oprogramowania, oraz na zezwolenie osobom, którym Oprogramowanie jest dostarczane, aby to czyniły, pod następującymi warunkami:
+
+Powyższa nota o prawach autorskich i ta nota o pozwoleniu muszą być dołączone do wszystkich kopii lub istotnych części Oprogramowania.
+
+OPROGRAMOWANIE JEST DOSTARCZANE "TAKIM, JAKIE JEST", BEZ JAKIEJKOLWIEK GWARANCJI, WYRAŹNEJ LUB DOROZUMIANEJ, WŁĄCZAJĄC W TO, ALE NIE OGRANICZAJĄC SIĘ DO, GWARANCJI PRZYDATNOŚCI HANDLOWEJ, PRZYDATNOŚCI DO OKREŚLONEGO CELU ORAZ NIENARUSZALNOŚCI PRAW. W ŻADNYM WYPADKU AUTORZY LUB POSIADACZE PRAW AUTORSKICH NIE BĘDĄ ODPOWIEDZIALNI ZA JAKIEKOLWIEK ROSZCZENIA, SZKODY LUB INNE ZOBOWIĄZANIA, CZY TO W WYNIKU DZIAŁANIA UMOWY, DELIKTU CZY W INNY SPOSÓB, WYNIKAJĄCE Z, LUB W ZWIĄZKU Z OPROGRAMOWANIEM LUB UŻYCIEM LUB INNYMI DZIAŁANIAMI W OPROGRAMOWANIU.
+
+</details>
+
+---
+
+## 🇺🇸 Code of Conduct / Kodeks Postepowania 🇵🇱
+
+This project and everyone participating in it is governed by the Contributor Covenant. See the CODE_OF_CONDUCT.md file for details.
+
+<details>
+<summary>🇵🇱</summary>
+
+Kodeks Postępowania
+
+Ten projekt i wszyscy w nim uczestniczący podlegają Zasadom Współtwórcy (Contributor Covenant). Zobacz plik CODE_OF_CONDUCT.md, aby uzyskać szczegółowe informacje.
+
+Tłumaczenie [PL]:
+
+
+## Kodeks Postępowania - Contributor Covenant
+
+### Nasza Obietnica
+
+Jako członkinie i członkowie, współtwórczynie i współtwórcy oraz liderki i liderzy
+zobowiązujemy się, że udział w naszej społeczności będzie wolny od nękania dla
+każdego, bez względu na wiek, budowę ciała, widoczną lub niewidoczną
+niepełnosprawność, pochodzenie etniczne, cechy płciowe, tożsamość i ekspresję
+płciową, poziom doświadczenia, wykształcenie, status społeczno-ekonomiczny,
+narodowość, wygląd, rasę, religię czy tożsamość i orientację seksualną.
+
+Zobowiązujemy się do działania i interakcji w sposób, który przyczynia się do
+tworzenia otwartej, przyjaznej, zróżnicowanej, inkluzywnej i zdrowej społeczności.
+
+### Nasze Standardy
+
+Przykłady zachowań, które przyczyniają się do tworzenia pozytywnego środowiska
+dla naszej społeczności, obejmują:
+
+* Okazywanie empatii i życzliwości wobec innych osób
+* Szacunek dla odmiennych opinii, punktów widzenia i doświadczeń
+* Udzielanie i taktowne przyjmowanie konstruktywnej informacji zwrotnej
+* Przyjmowanie odpowiedzialności, przepraszanie osób dotkniętych naszymi
+    błędami i wyciąganie z nich wniosków
+* Skupianie się nie tylko na tym, co najlepsze dla nas jako jednostek, ale dla
+    całej społeczności
+
+Przykłady niedopuszczalnych zachowań obejmują:
+
+* Używanie języka lub obrazów o charakterze seksualnym oraz wszelkiego rodzaju
+    zaloty lub umizgi o charakterze seksualnym
+* Trolling, obraźliwe lub uwłaczające komentarze oraz ataki osobiste lub
+    polityczne
+* Nękanie publiczne lub prywatne
+* Publikowanie prywatnych informacji innych osób, takich jak adres fizyczny lub
+    mailowy, bez ich wyraźnej zgody
+* Inne zachowania, które można by uznać za niewłaściwe w środowisku
+    profesjonalnym
+
+### Obowiązki Egzekwowania Zasad
+
+Liderki i liderzy społeczności są odpowiedzialni za wyjaśnianie i egzekwowanie
+naszych standardów oraz podejmą odpowiednie i sprawiedliwe działania naprawcze w
+odpowiedzi na każde zachowanie, które uznają za niestosowne, zagrażające,
+obraźliwe lub szkodliwe.
+
+Liderki i liderzy społeczności mają prawo i obowiązek usuwać, edytować lub
+odrzucać komentarze, commity, kod, edycje wiki, zgłoszenia i inne formy wkładu,
+które nie są zgodne z niniejszym Kodeksem Postępowania, i w razie potrzeby
+przedstawią powody swoich decyzji moderacyjnych.
+
+### Zakres
+
+Niniejszy Kodeks Postępowania obowiązuje we wszystkich przestrzeniach
+społeczności, a także wtedy, gdy dana osoba oficjalnie reprezentuje społeczność w
+przestrzeni publicznej. Przykłady reprezentowania naszej społeczności obejmują
+używanie oficjalnego adresu e-mail, publikowanie postów za pośrednictwem
+oficjalnego konta w mediach społecznościowych lub występowanie w charakterze
+wyznaczonej przedstawicielki lub przedstawiciela na wydarzeniu online lub offline.
+
+### Egzekwowanie Zasad
+
+Przypadki obraźliwego, nękającego lub w inny sposób niedopuszczalnego zachowania
+mogą być zgłaszane liderkom i liderom społeczności odpowiedzialnym za egzekwowanie
+zasad pod adresem **luke.strider.gm@gmail.com**.
+Wszystkie skargi zostaną rozpatrzone i zbadane niezwłocznie i sprawiedliwie.
+
+Wszystkie liderki i liderzy społeczności są zobowiązani do poszanowania prywatności i
+bezpieczeństwa osoby zgłaszającej incydent.
+
+### Wytyczne Dotyczące Egzekwowania Zasad
+
+Liderki i liderzy społeczności będą postępować zgodnie z niniejszymi Wytycznymi
+Dotyczącymi Wpływu na Społeczność przy określaniu konsekwencji za każde
+działanie, które uznają za naruszenie niniejszego Kodeksu Postępowania:
+
+### 1. Naprawienie
+
+**Wpływ na Społeczność**: Używanie niestosownego języka lub inne zachowanie uznane
+za nieprofesjonalne lub niemile widziane w społeczności.
+
+**Konsekwencja**: Prywatne, pisemne upomnienie od liderek lub liderów społeczności,
+wyjaśniające naturę naruszenia i powód, dla którego zachowanie było
+niestosowne. Może zostać zażądane publiczne przeproszenie.
+
+### 2. Ostrzeżenie
+
+**Wpływ na Społeczność**: Naruszenie w wyniku pojedynczego incydentu lub serii
+działań.
+
+**Konsekwencja**: Ostrzeżenie z konsekwencjami za dalsze zachowanie. Zakaz
+interakcji z osobami zaangażowanymi, w tym nieproszonych interakcji z osobami
+egzekwującymi Kodeks Postępowania, przez określony czas. Obejmuje to unikanie
+interakcji w przestrzeniach społeczności, jak i na kanałach zewnętrznych, takich
+jak media społecznościowe. Naruszenie tych warunków może prowadzić do
+tymczasowego lub stałego bana.
+
+### 3. Tymczasowy Ban
+
+**Wpływ na Społeczność**: Poważne naruszenie standardów społeczności, w tym
+utrzymujące się niestosowne zachowanie.
+
+**Konsekwencja**: Tymczasowy zakaz jakichkolwiek interakcji lub publicznej
+komunikacji ze społecznością na określony czas. W tym okresie zabronione są
+publiczne i prywatne interakcje z osobami zaangażowanymi, w tym nieproszone
+interakcje z osobami egzekwującymi Kodeks Postępowania. Naruszenie tych
+warunków może prowadzić do stałego bana.
+
+### 4. Stały Ban
+
+**Wpływ na Społeczność**: Wykazywanie wzorca naruszania standardów społeczności,
+w tym utrzymujące się niestosowne zachowanie, nękanie danej osoby lub agresja
+wobec lub oczernianie grup osób.
+
+**Konsekwencja**: Stały zakaz jakichkolwiek publicznych interakcji w ramach
+społeczności.
+
+---
+Atrybucja
+
+Niniejszy Kodeks Postępowania jest adaptacją [Contributor Covenant][homepage],
+wersja 2.1, dostępnej pod adresem
+[https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][v2.1].
+
+[homepage]: https://www.contributor-covenant.org
+[v2.1]: https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
+
+---
+
+</details>
+
+--- END FILE: README.md ---
+
+--- START FILE: cot.log ---
+2026-01-31 03:41:56,169 - INFO - CoT for ZQ-3 R/B: lat=55.56, lon=95.43, alt=64430.0
+2026-01-31 03:42:06,724 - INFO - CoT for ZQ-3 R/B: lat=55.75, lon=96.59, alt=64360.0
+2026-01-31 03:42:17,442 - INFO - CoT for ZQ-3 R/B: lat=55.94, lon=97.86, alt=64270.0
+2026-01-31 03:42:27,945 - INFO - CoT for ZQ-3 R/B: lat=56.10, lon=99.04, alt=64200.0
+2026-01-31 03:42:38,655 - INFO - CoT for ZQ-3 R/B: lat=56.27, lon=100.34, alt=64110.0
+2026-01-31 03:42:49,243 - INFO - CoT for ZQ-3 R/B: lat=56.42, lon=101.66, alt=64020.0
+2026-01-31 03:42:59,964 - INFO - CoT for ZQ-3 R/B: lat=56.54, lon=102.86, alt=63940.0
+2026-01-31 03:43:10,523 - INFO - CoT for ZQ-3 R/B: lat=56.66, lon=104.19, alt=63850.0
+2026-01-31 03:43:21,127 - INFO - CoT for ZQ-3 R/B: lat=56.77, lon=105.53, alt=63750.0
+2026-01-31 03:43:31,724 - INFO - CoT for ZQ-3 R/B: lat=56.85, lon=106.76, alt=63660.0
+2026-01-31 03:43:42,362 - INFO - CoT for ZQ-3 R/B: lat=56.93, lon=108.11, alt=63560.0
+2026-01-31 03:43:52,899 - INFO - CoT for ZQ-3 R/B: lat=56.99, lon=109.35, alt=63470.0
+2026-01-31 03:44:03,416 - INFO - CoT for ZQ-3 R/B: lat=57.03, lon=110.71, alt=63360.0
+2026-01-31 03:44:13,992 - INFO - CoT for ZQ-3 R/B: lat=57.06, lon=111.95, alt=63270.0
+2026-01-31 03:44:24,572 - INFO - CoT for ZQ-3 R/B: lat=57.08, lon=113.32, alt=63160.0
+2026-01-31 03:44:35,077 - INFO - CoT for ZQ-3 R/B: lat=57.08, lon=114.57, alt=63060.0
+2026-01-31 03:44:45,640 - INFO - CoT for ZQ-3 R/B: lat=57.07, lon=115.94, alt=62940.0
+2026-01-31 03:44:56,375 - INFO - CoT for ZQ-3 R/B: lat=57.04, lon=117.30, alt=62820.0
+2026-01-31 03:45:07,087 - INFO - CoT for ZQ-3 R/B: lat=57.00, lon=118.54, alt=62720.0
+2026-01-31 03:45:17,745 - INFO - CoT for ZQ-3 R/B: lat=56.94, lon=119.90, alt=62600.0
+2026-01-31 03:45:28,231 - INFO - CoT for ZQ-3 R/B: lat=56.86, lon=121.26, alt=62470.0
+2026-01-31 03:45:38,743 - INFO - CoT for ZQ-3 R/B: lat=56.78, lon=122.48, alt=62360.0
+2026-01-31 03:45:49,282 - INFO - CoT for ZQ-3 R/B: lat=56.67, lon=123.83, alt=62230.0
+2026-01-31 03:45:59,836 - INFO - CoT for ZQ-3 R/B: lat=56.56, lon=125.04, alt=62110.0
+2026-01-31 03:46:10,418 - INFO - CoT for ZQ-3 R/B: lat=56.43, lon=126.37, alt=61980.0
+2026-01-31 03:46:20,991 - INFO - CoT for ZQ-3 R/B: lat=56.29, lon=127.56, alt=61860.0
+2026-01-31 03:46:31,515 - INFO - CoT for ZQ-3 R/B: lat=56.13, lon=128.87, alt=61730.0
+2026-01-31 03:46:42,028 - INFO - CoT for ZQ-3 R/B: lat=55.97, lon=130.04, alt=61600.0
+2026-01-31 03:46:52,576 - INFO - CoT for ZQ-3 R/B: lat=55.78, lon=131.33, alt=61460.0
+2026-01-31 03:47:03,171 - INFO - CoT for ZQ-3 R/B: lat=55.57, lon=132.60, alt=61320.0
+2026-01-31 03:47:13,816 - INFO - CoT for ZQ-3 R/B: lat=55.37, lon=133.74, alt=61190.0
+2026-01-31 03:47:24,526 - INFO - CoT for ZQ-3 R/B: lat=55.14, lon=134.98, alt=61050.0
+2026-01-31 03:47:35,126 - INFO - CoT for ZQ-3 R/B: lat=54.90, lon=136.21, alt=60900.0
+2026-01-31 03:47:45,687 - INFO - CoT for ZQ-3 R/B: lat=54.66, lon=137.31, alt=60770.0
+2026-01-31 03:47:56,233 - INFO - CoT for ZQ-3 R/B: lat=54.39, lon=138.50, alt=60620.0
+2026-01-31 03:48:06,804 - INFO - CoT for ZQ-3 R/B: lat=54.13, lon=139.58, alt=60480.0
+2026-01-31 03:48:17,299 - INFO - CoT for ZQ-3 R/B: lat=53.84, lon=140.74, alt=60330.0
+
+--- END FILE: cot.log ---
+
+--- START FILE: cot_replay.log ---
+2026-01-31 03:41:56,169 - INFO - CoT for ZQ-3 R/B: lat=55.56, lon=95.43, alt=64430.0
+2026-01-31 03:42:06,724 - INFO - CoT for ZQ-3 R/B: lat=55.75, lon=96.59, alt=64360.0
+2026-01-31 03:42:17,442 - INFO - CoT for ZQ-3 R/B: lat=55.94, lon=97.86, alt=64270.0
+2026-01-31 03:42:27,945 - INFO - CoT for ZQ-3 R/B: lat=56.10, lon=99.04, alt=64200.0
+2026-01-31 03:42:38,655 - INFO - CoT for ZQ-3 R/B: lat=56.27, lon=100.34, alt=64110.0
+2026-01-31 03:42:49,243 - INFO - CoT for ZQ-3 R/B: lat=56.42, lon=101.66, alt=64020.0
+2026-01-31 03:42:59,964 - INFO - CoT for ZQ-3 R/B: lat=56.54, lon=102.86, alt=63940.0
+2026-01-31 03:43:10,523 - INFO - CoT for ZQ-3 R/B: lat=56.66, lon=104.19, alt=63850.0
+2026-01-31 03:43:21,127 - INFO - CoT for ZQ-3 R/B: lat=56.77, lon=105.53, alt=63750.0
+2026-01-31 03:43:31,724 - INFO - CoT for ZQ-3 R/B: lat=56.85, lon=106.76, alt=63660.0
+2026-01-31 03:43:42,362 - INFO - CoT for ZQ-3 R/B: lat=56.93, lon=108.11, alt=63560.0
+2026-01-31 03:43:52,899 - INFO - CoT for ZQ-3 R/B: lat=56.99, lon=109.35, alt=63470.0
+2026-01-31 03:44:03,416 - INFO - CoT for ZQ-3 R/B: lat=57.03, lon=110.71, alt=63360.0
+2026-01-31 03:44:13,992 - INFO - CoT for ZQ-3 R/B: lat=57.06, lon=111.95, alt=63270.0
+2026-01-31 03:44:24,572 - INFO - CoT for ZQ-3 R/B: lat=57.08, lon=113.32, alt=63160.0
+2026-01-31 03:44:35,077 - INFO - CoT for ZQ-3 R/B: lat=57.08, lon=114.57, alt=63060.0
+2026-01-31 03:44:45,640 - INFO - CoT for ZQ-3 R/B: lat=57.07, lon=115.94, alt=62940.0
+2026-01-31 03:44:56,375 - INFO - CoT for ZQ-3 R/B: lat=57.04, lon=117.30, alt=62820.0
+2026-01-31 03:45:07,087 - INFO - CoT for ZQ-3 R/B: lat=57.00, lon=118.54, alt=62720.0
+2026-01-31 03:45:17,745 - INFO - CoT for ZQ-3 R/B: lat=56.94, lon=119.90, alt=62600.0
+2026-01-31 03:45:28,231 - INFO - CoT for ZQ-3 R/B: lat=56.86, lon=121.26, alt=62470.0
+2026-01-31 03:45:38,743 - INFO - CoT for ZQ-3 R/B: lat=56.78, lon=122.48, alt=62360.0
+2026-01-31 03:45:49,282 - INFO - CoT for ZQ-3 R/B: lat=56.67, lon=123.83, alt=62230.0
+2026-01-31 03:45:59,836 - INFO - CoT for ZQ-3 R/B: lat=56.56, lon=125.04, alt=62110.0
+2026-01-31 03:46:10,418 - INFO - CoT for ZQ-3 R/B: lat=56.43, lon=126.37, alt=61980.0
+2026-01-31 03:46:20,991 - INFO - CoT for ZQ-3 R/B: lat=56.29, lon=127.56, alt=61860.0
+2026-01-31 03:46:31,515 - INFO - CoT for ZQ-3 R/B: lat=56.13, lon=128.87, alt=61730.0
+2026-01-31 03:46:42,028 - INFO - CoT for ZQ-3 R/B: lat=55.97, lon=130.04, alt=61600.0
+2026-01-31 03:46:52,576 - INFO - CoT for ZQ-3 R/B: lat=55.78, lon=131.33, alt=61460.0
+2026-01-31 03:47:03,171 - INFO - CoT for ZQ-3 R/B: lat=55.57, lon=132.60, alt=61320.0
+2026-01-31 03:47:13,816 - INFO - CoT for ZQ-3 R/B: lat=55.37, lon=133.74, alt=61190.0
+2026-01-31 03:47:24,526 - INFO - CoT for ZQ-3 R/B: lat=55.14, lon=134.98, alt=61050.0
+2026-01-31 03:47:35,126 - INFO - CoT for ZQ-3 R/B: lat=54.90, lon=136.21, alt=60900.0
+2026-01-31 03:47:45,687 - INFO - CoT for ZQ-3 R/B: lat=54.66, lon=137.31, alt=60770.0
+2026-01-31 03:47:56,233 - INFO - CoT for ZQ-3 R/B: lat=54.39, lon=138.50, alt=60620.0
+2026-01-31 03:48:06,804 - INFO - CoT for ZQ-3 R/B: lat=54.13, lon=139.58, alt=60480.0
+2026-01-31 03:48:17,299 - INFO - CoT for ZQ-3 R/B: lat=53.84, lon=140.74, alt=60330.0
+
+--- END FILE: cot_replay.log ---
+
+--- START FILE: replay_cot.py ---
+import CoT  # https://pypi.org/project/PyCoT
+import socket
+import ssl
+import os
+import logging
+import datetime
+import time
+import re
+import warnings
+from dateutil.parser import parse as parse_date
+
+# --- CONFIGURATION OF WARNINGS ---
+# --- KONFIGURACJA OSTRZEŻEŃ ---
+
+# Disable annoying library warnings
+# Wyłącz irytujące ostrzeżenia biblioteki
+warnings.filterwarnings("ignore")
+
+# --- LOGGING CONFIGURATION ---
+# --- KONFIGURACJA LOGOWANIA ---
+
+# Configure logging for the replayer itself
+# Konfiguracja logowania dla samego odtwarzacza
+logging.basicConfig(
+    filename="cot_replay.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+# --- TAK SERVER SETTINGS ---
+# --- USTAWIENIA SERWERA TAK ---
+
+# IP address and port (Matches your main script)
+# Adres IP i port (Zgodne z głównym skryptem)
+TAK_IP = "192.168.1.2"
+TAK_PORT = 8089
+
+# --- SSL CERTIFICATES ---
+# --- CERTYFIKATY SSL ---
+
+# Define paths to certificates (OrangePi Paths)
+# Zdefiniuj ścieżki do certyfikatów (Ścieżki OrangePi)
+CERT_DIR = "/home/lukestridergm/BLOX-TAK-CoT/certs"
+CLIENT_CERT = os.path.join(CERT_DIR, "BLOX-TAK-SF-ADMIN.pem")
+CLIENT_KEY = os.path.join(CERT_DIR, "BLOX-TAK-SF-ADMIN.key")
+CA_CERT = os.path.join(CERT_DIR, "BLOX-TAK-SF-ADMIN-trusted.pem")
+
+# --- SSL CONTEXT PREPARATION ---
+# --- PRZYGOTOWANIE KONTEKSTU SSL ---
+
+# Load client and CA certificates
+# Załaduj certyfikaty klienta i CA
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+ssl_context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
+ssl_context.load_verify_locations(cafile=CA_CERT)
+ssl_context.verify_mode = ssl.CERT_REQUIRED
+
+# --- REPLAY SETTINGS ---
+# --- USTAWIENIA ODTWARZANIA ---
+
+# Path to the input log file (Where the main script writes)
+# Ścieżka do pliku logów wejściowych (Gdzie zapisuje główny skrypt)
+LOG_FILE = "/home/lukestridergm/BLOX-TAK-CoT/cot.log"
+
+# Target Identity for Replay
+# Tożsamość celu dla odtwarzania
+SAT_ID = 66877  # ZQ-3 R/B
+SAT_NAME = "ZQ-3 R/B (REPLAY)"
+REFRESH_INTERVAL = 1.0  # Speed of replay (1.0 = Realtime)
+
+
+def parse_log_for_positions(start_time, end_time):
+    """
+    Parse the log file for CoT position entries within the given time range.
+    Parsuj plik logów w poszukiwaniu pozycji CoT w zadanym zakresie czasu.
+    """
+    positions = []
+
+    # Regex matching the FIXED logging format: "lat=50.1 lon=15.2 alt=60000.0"
+    # Regex pasujący do NAPRAWIONEGO formatu logowania
+    regex_standard = re.compile(
+        r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}).*lat=(-?\d+\.\d+).*lon=(-?\d+\.\d+).*alt=(-?\d+\.?\d*)"
+    )
+
+    try:
+        with open(LOG_FILE, "r") as file:
+            for line in file:
+                match = regex_standard.search(line)
+                if match:
+                    timestamp_str, lat, lon, alt = match.groups()
+                    try:
+                        timestamp = parse_date(timestamp_str)
+                        # Filter by time range
+                        if start_time <= timestamp <= end_time:
+                            positions.append((timestamp, float(lat), float(lon), float(alt)))
+                    except Exception:
+                        continue
+    except FileNotFoundError:
+        print(f"❌ Error: Log file not found: {LOG_FILE}")
+        print(f"❌ Błąd: Nie znaleziono pliku logów: {LOG_FILE}")
+        return []
+    except Exception as e:
+        print(f"❌ Error parsing log file: {e}")
+        print(f"❌ Błąd parsowania pliku logów: {e}")
+        return []
+
+    return positions
+
+
+def send_cot_to_tak(lat, lon, alt, timestamp):
+    """
+    Send a CoT message to the TAK server via SSL.
+    Wyślij wiadomość CoT do serwera TAK przez SSL.
+    """
+    try:
+        # Establish SSL connection
+        # Nawiąż połączenie SSL
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        wrapped_sock = ssl_context.wrap_socket(sock, server_hostname=TAK_IP)
+        wrapped_sock.connect((TAK_IP, TAK_PORT))
+        wrapped_sock.settimeout(2.0)
+
+        # Create CoT event
+        # Stwórz zdarzenie CoT
+
+        # CoT types: https://github.com/wcrum/py-cot/blob/main/CoT/types.py
+        stale = timestamp + datetime.timedelta(minutes=5)
+        cot_event = CoT.Event(
+            version="2.0",
+            type="a-h-P-S",  # Hostile Space Satellite
+            uid=f"SAT.{SAT_ID}.REPLAY",  # Unique ID for replay so it doesn't conflict
+            time=timestamp,
+            start=timestamp,
+            stale=stale,
+            how="m-g",
+            point=CoT.Point(
+                lat=lat,
+                lon=lon,
+                hae=alt,
+                ce=9999999,
+                le=9999999
+            ),
+            detail={
+                "contact": {"callsign": SAT_NAME},
+                "remarks": "REPLAY MODE - SIMULATION"
+            }
+        )
+
+        # Send CoT message
+        # Wyślij wiadomość CoT
+        wrapped_sock.sendall(bytes(cot_event.xml(), encoding="utf-8"))
+
+        # Log and print position (IDENTICAL FORMAT TO MAIN SCRIPT)
+        # Loguj i wypisz pozycję (FORMAT IDENTYCZNY JAK W GŁÓWNYM SKRYPCIE)
+        print(
+            f"📡 REPLAY: {timestamp.strftime('%H:%M:%S')} | ALT: {alt:>8.0f} m | LAT: {lat:>7.2f} | LON: {lon:>8.2f} | 🔴 HOSTILE")
+        print(
+            f"📡 ODTW.:  {timestamp.strftime('%H:%M:%S')} | WYS: {alt:>8.0f} m | SZER:{lat:>7.2f} | DŁU: {lon:>8.2f} | 🔴 WROGI")
+
+        logging.info(f"Replayed CoT: lat={lat}, lon={lon}, alt={alt}")
+
+        # Clear buffer (Receive confirmation)
+        # Wyczyść bufor (Odbierz potwierdzenie)
+        try:
+            _ = wrapped_sock.recv(1024)
+        except socket.timeout:
+            pass
+
+        wrapped_sock.close()
+        return True
+
+    except (ConnectionRefusedError, ssl.SSLError) as e:
+        print(f"❌ SSL Error: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
+
+
+def main():
+    # User Interface
+    # Interfejs Użytkownika
+    print(f"🎞️  CoT REPLAYER STARTING")
+    print(f"🎞️  URUCHAMIANIE ODTWARZACZA CoT")
+    print(f"📂 Reading from: {LOG_FILE}")
+    print(f"📂 Odczyt z: {LOG_FILE}")
+    print("-" * 40)
+
+    print("Enter time range (YYYY-MM-DD HH:MM:SS)")
+    print("Wprowadź zakres czasu (RRRR-MM-DD GG:MM:SS)")
+    print("Example/Przykład: 2026-01-31 03:41:00")
+
+    try:
+        start_time_str = input("Start: ")
+        end_time_str = input("End/Koniec: ")
+
+        start_time = parse_date(start_time_str)
+        end_time = parse_date(end_time_str)
+
+        if start_time >= end_time:
+            print("❌ Start time must be before end time.")
+            return
+
+        # Parse log file
+        # Parsuj plik logów
+        print(f"🔄 Scanning log file...")
+        positions = parse_log_for_positions(start_time, end_time)
+
+        if not positions:
+            print("⚠️ No positions found. Check if cot.log has data with 'lat=' and 'lon='.")
+            print("⚠️ Nie znaleziono pozycji. Sprawdź czy cot.log ma dane z 'lat=' i 'lon='.")
+            return
+
+        print(f"✅ Found {len(positions)} frames. Starting Replay...")
+        time.sleep(1)
+
+        # Replay Loop
+        # Pętla Odtwarzania
+        for timestamp, lat, lon, alt in positions:
+            if send_cot_to_tak(lat, lon, alt, timestamp):
+                time.sleep(REFRESH_INTERVAL)
+            else:
+                print("⚠️ Skipped frame.")
+
+    except ValueError as e:
+        print(f"❌ Invalid date format: {e}")
+    except Exception as e:
+        print(f"❌ Critical Error: {e}")
+
+
+if __name__ == "__main__":
+    main()
+--- END FILE: replay_cot.py ---
+
+--- START FILE: requirements.txt ---
+requests
+PyCoT
+python-dateutil
+--- END FILE: requirements.txt ---
